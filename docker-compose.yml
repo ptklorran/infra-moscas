@@ -1,0 +1,33 @@
+version: '3'
+services: 
+    nginx:
+        build:
+            dockerfile: ./dockerfiles/nginx.dockerfile
+            context: .
+        image: moscas/nginx
+        container_name: nginx
+        ports: 
+            - "80:80"
+            - "443:443"
+        restart: always
+        networks: 
+            - production-network
+        volumes:
+            - ./nginx/conf/:/etc/nginx/conf.d/:ro
+            - ./basesfront/dist/:/usr/share/nginx/html/:ro
+        depends_on: 
+            - "basesback"
+    basesback:
+        restart: always
+        build: 
+            dockerfile: ./dockerfiles/bases.dockerfile
+            context: .
+        image: moscas/bases
+        container_name: basesback
+        ports: 
+            - "3000:3000"
+        networks: 
+            - production-network
+networks:
+    production-network:
+        driver: bridge
