@@ -7,7 +7,7 @@ services:
         image: moscas/nginx
         container_name: nginx
         ports: 
-            - "80:80"
+            - "8080:8080"
             - "443:443"
         restart: always
         networks: 
