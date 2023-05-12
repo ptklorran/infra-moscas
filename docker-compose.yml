@@ -1,33 +1,49 @@
 version: '3'
 services: 
-    nginx:
-        build:
-            dockerfile: ./dockerfiles/nginx.dockerfile
-            context: .
-        image: moscas/nginx
-        container_name: nginx
-        ports: 
-            - "8082:8082"
-            - "443:443"
-        restart: always
-        networks: 
-            - production-network
-        volumes:
-            - ./nginx/conf/:/etc/nginx/conf.d/:ro
-            - ./basesfront/dist/:/usr/share/nginx/html/:ro
-        depends_on: 
-            - "basesback"
-    basesback:
-        restart: always
-        build: 
-            dockerfile: ./dockerfiles/bases.dockerfile
-            context: .
-        image: moscas/bases
-        container_name: basesback
-        ports: 
-            - "3000:3000"
-        networks: 
-            - production-network
+  nginx:
+    build:
+      dockerfile: ./dockerfiles/nginx.dockerfile
+      context: .
+    image: moscas/nginx
+    container_name: nginx
+    ports: 
+      - "80:80"
+      - "443:443"
+    restart: always
+    networks: 
+      - production-network
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./basesfront/dist/:/usr/share/nginx/html/:ro
+    depends_on: 
+      - "basesback"
+      - "mongo"
+  basesback:
+    restart: always
+    build: 
+      dockerfile: ./dockerfiles/bases.dockerfile
+      context: .
+    image: moscas/bases
+    container_name: basesback
+    ports: 
+      - "3000:3000"
+    networks: 
+      - production-network
+    volumes:
+      - ./data/db:/data/db
+  mongo:
+    restart: always
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - production-network
+    volumes:
+      - ./data/db:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=!@#$%
 networks:
-    production-network:
-        driver: bridge
+  production-network:
+    driver: bridge
